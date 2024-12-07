@@ -22,25 +22,29 @@ export const parseDoujinList = (
                   totalPages
               }
     $('.gallery').each((i, el) => {
-        const contentElements = $(el).find('a')
-        const slug = contentElements.attr('href')
-        const id = slug ? slug.split('g/')[1].replace('/', '') : ''
-        const url = `${baseURL}/g/${id}` as TURL
+        const contentElements = $(el).find('a');
+        const slug = contentElements.attr('href');
+        const id = slug ? slug.split('g/')[1].replace('/', '') : '';
+        const url = `${baseURL}/g/${id}` as TURL;
+
         const coverSlug =
             contentElements.find('a > img').attr('data-src') ||
-            contentElements.find('a > img').attr('src')
-        const cover = coverSlug
-            ? `${
-                  coverSlug.startsWith('/galleries/')
-                      ? 'https://t3.nhentai.net'
-                      : ''
-              }${coverSlug}`
+            contentElements.find('a > img').attr('src');
+
+        const formattedSlug = coverSlug?.includes('/cover')
+            ? coverSlug
+            : coverSlug
+                  ?.replace(/\/(\d+)\.webp$/, '/t$1.webp')
                   .replace('/g/', '/galleries/')
-                  .replace(imageSites[site], 't3.nhentai.net')
-            : null
-        const title = $(el).find('.caption').text().trim()
-        data.push(new List(title, id, cover, url))
-    })
+                  .replace(imageSites[site], 't3.nhentai.net');
+
+        const cover = formattedSlug
+            ? `${formattedSlug.startsWith('/galleries/') ? 'https://t3.nhentai.net' : ''}${formattedSlug}`
+            : null;
+
+        const title = $(el).find('.caption').text().trim();
+        data.push(new List(title, id, cover, url));
+    });
     return {
         pagination,
         data
